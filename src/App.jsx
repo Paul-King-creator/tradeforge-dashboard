@@ -9,7 +9,7 @@ import {
 } from 'recharts'
 
 // API Konfiguration
-const API_URL = 'http://localhost:5000/api'
+const API_URL = 'https://every-sites-smash.loca.lt/api'
 
 // API Client
 const fetchAPI = async (endpoint) => {
