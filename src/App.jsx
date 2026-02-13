@@ -202,7 +202,7 @@ function App() {
                   <h2>Portfolio Performance</h2>
                   <span style={{ color: '#64748b', fontSize: '0.875rem' }}>Today</span>
                 </div>
-                <div style={{ height: '250px' }}>
+                <div className="chart-container">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data.performance}>
                       <defs>
@@ -244,25 +244,26 @@ function App() {
               {data.positions.length > 0 ? (
                 <div className="positions-list">
                   {data.positions.map(pos => (
-                    <div key={pos.id} className="position-card" style={{ gridTemplateColumns: 'auto 1fr auto auto auto auto' }}>
+                    <div key={pos.id} className="position-card">
                       <div className={`position-type ${pos.type === 'buy' ? 'long' : 'short'}`}>
                         {pos.type === 'buy' ? 'L' : 'S'}
                       </div>
                       <div className="position-info">
                         <h3>{pos.ticker}</h3>
-                        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        <span>
                           {pos.shares} shares @ {pos.leverage}x | R:R {pos.riskRewardRatio}:1
                         </span>
                       </div>
-                      <div className="position-price">
+                      {/* Desktop Metrics */}
+                      <div className="position-price hide-mobile">
                         <div className="label">Position</div>
                         <div className="value">{formatCurrency(pos.positionValue)}</div>
                       </div>
-                      <div className="position-price">
+                      <div className="position-price hide-mobile">
                         <div className="label">Risk</div>
                         <div className="value" style={{ color: '#ef4444' }}>-{formatCurrency(pos.riskAmount)}</div>
                       </div>
-                      <div className="position-price">
+                      <div className="position-price hide-mobile">
                         <div className="label">Target</div>
                         <div className="value" style={{ color: '#10b981' }}>+{formatCurrency(pos.potentialProfit)}</div>
                       </div>
@@ -273,6 +274,21 @@ function App() {
                           <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
                             {formatCurrency(pos.unrealizedPnl)}
                           </div>
+                        </div>
+                      </div>
+                      {/* Mobile Metrics Row */}
+                      <div className="mobile-metrics">
+                        <div className="position-price">
+                          <div className="label">Size</div>
+                          <div className="value">{formatCurrency(pos.positionValue)}</div>
+                        </div>
+                        <div className="position-price">
+                          <div className="label">Risk</div>
+                          <div className="value" style={{ color: '#ef4444' }}>-{formatCurrency(pos.riskAmount)}</div>
+                        </div>
+                        <div className="position-price">
+                          <div className="label">Target</div>
+                          <div className="value" style={{ color: '#10b981' }}>+{formatCurrency(pos.potentialProfit)}</div>
                         </div>
                       </div>
                     </div>
@@ -297,7 +313,7 @@ function App() {
                     <div key={item.ticker} className="watchlist-item">
                       <span className="ticker">{item.ticker}</span>
                       <div className="price">
-                        <div>${(item.price || 0).toFixed(2)}</div>
+                        <div className="price-value">${(item.price || 0).toFixed(2)}</div>
                         <div className={`change ${(item.change || 0) >= 0 ? 'positive' : 'negative'}`}>
                           {(item.change || 0) > 0 ? '+' : ''}{item.change}%
                         </div>
@@ -342,36 +358,38 @@ function App() {
                 <h2>Today's Activity</h2>
               </div>
               {data.todayTrades.length > 0 ? (
-                <table className="trades-table">
-                  <thead>
-                    <tr>
-                      <th>Ticker</th>
-                      <th>Type</th>
-                      <th>Price</th>
-                      <th>P&L</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {data.todayTrades.map((trade, idx) => (
-                      <tr key={idx}>
-                        <td style={{ fontWeight: 600 }}>{trade.ticker}</td>
-                        <td>
-                          <span className={`badge ${trade.type}`}>
-                            {trade.type?.toUpperCase()}
-                          </span>
-                        </td>
-                        <td>${(trade.price || 0).toFixed(2)}</td>
-                        <td style={{ 
-                          color: trade.pnl === null ? '#64748b' : 
-                                 (trade.pnl || 0) > 0 ? '#10b981' : '#ef4444'
-                        }}>
-                          {trade.pnl === null ? 'OPEN' : 
+                <div className="table-container">
+                  <table className="trades-table">
+                    <thead>
+                      <tr>
+                        <th>Ticker</th>
+                        <th>Type</th>
+                        <th>Price</th>
+                        <th>P&L</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {data.todayTrades.map((trade, idx) => (
+                        <tr key={idx}>
+                          <td style={{ fontWeight: 600 }}>{trade.ticker}</td>
+                          <td>
+                            <span className={`badge ${trade.type}`}>
+                              {trade.type?.toUpperCase()}
+                            </span>
+                          </td>
+                          <td>${(trade.price || 0).toFixed(2)}</td>
+                          <td style={{ 
+                            color: trade.pnl === null ? '#64748b' : 
+                                   (trade.pnl || 0) > 0 ? '#10b981' : '#ef4444'
+                          }}>
+                            {trade.pnl === null ? 'OPEN' :
                            `${(trade.pnl || 0) > 0 ? '+' : ''}${(trade.pnl || 0).toFixed(1)}%`}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                </div>
               ) : (
                 <div className="empty-state">No trades today</div>
               )}
