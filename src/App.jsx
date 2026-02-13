@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { 
   TrendingUp, TrendingDown, Activity, DollarSign, 
-  Target, AlertCircle, Clock, RefreshCw 
+  Target, AlertCircle, Shield, RefreshCw 
 } from 'lucide-react'
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, 
@@ -9,7 +9,7 @@ import {
 } from 'recharts'
 
 // API Konfiguration
-const API_URL = 'https://weak-flowers-fly.loca.lt/api'
+const API_URL = 'http://100.113.212.123:5000/api'
 
 // API Client
 const fetchAPI = async (endpoint) => {
@@ -157,44 +157,37 @@ function App() {
           <div className="stat-card">
             <div className="stat-header">
               <TrendingUp size={18} />
-              <span>Open Positions</span>
+              <span>Total Exposure</span>
             </div>
-            <div className="stat-value">{data.portfolio?.openPositions || 0}</div>
+            <div className="stat-value">{formatCurrency(data.portfolio?.totalExposure)}</div>
             <div className="stat-change" style={{ color: '#64748b' }}>
-              {data.positions.filter(p => (p.pnl || 0) > 0).length} in profit
+              {data.portfolio?.exposurePercent || 0}% of portfolio
+            </div>
+          </div>
+
+          <div className="stat-card">
+            <div className="stat-header">
+              <AlertCircle size={18} />
+              <span>Total Risk</span>
+            </div>
+            <div className="stat-value" style={{ color: data.portfolio?.riskPercent > 5 ? '#ef4444' : '#f59e0b' }}>
+              {data.portfolio?.riskPercent || 0}%
+            </div>
+            <div className="stat-change" style={{ color: '#64748b' }}>
+              {formatCurrency(data.portfolio?.totalRisk)} at risk
             </div>
           </div>
 
           <div className="stat-card">
             <div className="stat-header">
               <Target size={18} />
-              <span>Today's Trades</span>
+              <span>Win Rate</span>
             </div>
-            <div className="stat-value">{data.todayTrades?.length || 0}</div>
-            <div className="stat-change" style={{ color: '#64748b' }}>
-              {data.portfolio?.closedToday || 0} closed
-            </div>
-          </div>
-
-          <div className="stat-card">
-            <div className="stat-header">
-              <Clock size={18} />
-              <span>Win Rate Today</span>
-            </div>
-            <div className="stat-value positive">
-              {(() => {
-                const closed = data.todayTrades.filter(t => t.status === 'closed')
-                if (closed.length === 0) return '0%'
-                const wins = closed.filter(t => (t.pnl || 0) > 0).length
-                return Math.round((wins / closed.length) * 100) + '%'
-              })()}
+            <div className={`stat-value ${(data.portfolio?.winRate || 0) >= 50 ? 'positive' : 'negative'}`}>
+              {data.portfolio?.winRate || 0}%
             </div>
             <div className="stat-change" style={{ color: '#64748b' }}>
-              {(() => {
-                const closed = data.todayTrades.filter(t => t.status === 'closed')
-                const wins = closed.filter(t => (t.pnl || 0) > 0).length
-                return `${wins} / ${closed.length} wins`
-              })()}
+              {data.portfolio?.winningTrades || 0}W / {data.portfolio?.losingTrades || 0}L
             </div>
           </div>
         </div>
@@ -243,32 +236,43 @@ function App() {
               <div className="section-header">
                 <h2>Open Positions</h2>
                 <span style={{ color: '#64748b', fontSize: '0.875rem' }}>
-                  Live P&L
+                  {data.positions.length > 0 && (
+                    <span>Total Exposure: {formatCurrency(data.portfolio?.totalExposure)} | Risk: {data.portfolio?.riskPercent}%</span>
+                  )}
                 </span>
               </div>
               {data.positions.length > 0 ? (
                 <div className="positions-list">
                   {data.positions.map(pos => (
-                    <div key={pos.id} className="position-card">
+                    <div key={pos.id} className="position-card" style={{ gridTemplateColumns: 'auto 1fr auto auto auto auto' }}>
                       <div className={`position-type ${pos.type === 'buy' ? 'long' : 'short'}`}>
                         {pos.type === 'buy' ? 'L' : 'S'}
                       </div>
                       <div className="position-info">
                         <h3>{pos.ticker}</h3>
-                        <span>{pos.strategy} • {pos.leverage}x • Conf: {Math.round((pos.confidence || 0) * 100)}%</span>
+                        <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                          {pos.shares} shares @ {pos.leverage}x | R:R {pos.riskRewardRatio}:1
+                        </span>
                       </div>
                       <div className="position-price">
-                        <div className="label">Entry</div>
-                        <div className="value">${(pos.entry || 0).toFixed(2)}</div>
+                        <div className="label">Position</div>
+                        <div className="value">{formatCurrency(pos.positionValue)}</div>
                       </div>
                       <div className="position-price">
-                        <div className="label">Current</div>
-                        <div className="value">${(pos.current || 0).toFixed(2)}</div>
+                        <div className="label">Risk</div>
+                        <div className="value" style={{ color: '#ef4444' }}>-{formatCurrency(pos.riskAmount)}</div>
+                      </div>
+                      <div className="position-price">
+                        <div className="label">Target</div>
+                        <div className="value" style={{ color: '#10b981' }}>+{formatCurrency(pos.potentialProfit)}</div>
                       </div>
                       <div className="position-price">
                         <div className="label">P&L</div>
                         <div className={`value ${(pos.pnl || 0) >= 0 ? 'positive' : 'negative'}`}>
-                          {(pos.pnl || 0) > 0 ? '+' : ''}{(pos.pnl || 0).toFixed(2)}%
+                          {(pos.pnl || 0) > 0 ? '+' : ''}{(pos.pnl || 0).toFixed(1)}%
+                          <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                            {formatCurrency(pos.unrealizedPnl)}
+                          </div>
                         </div>
                       </div>
                     </div>
