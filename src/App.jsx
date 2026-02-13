@@ -9,7 +9,7 @@ import {
 } from 'recharts'
 
 // API Konfiguration
-const API_URL = 'https://every-sites-smash.loca.lt/api'
+const API_URL = 'https://weak-flowers-fly.loca.lt/api'
 
 // API Client
 const fetchAPI = async (endpoint) => {
