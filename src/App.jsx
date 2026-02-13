@@ -299,7 +299,7 @@ function App() {
                   <h2>Watchlist</h2>
                 </div>
                 <div className="watchlist">
-                  {data.watchlist.map(item => (
+                  {data.watchlist.slice(0, 20).map(item => (
                     <div key={item.ticker} className="watchlist-item">
                       <span className="ticker">{item.ticker}</span>
                       <div className="price">
@@ -310,6 +310,11 @@ function App() {
                       </div>
                     </div>
                   ))}
+                  {data.watchlist.length > 20 && (
+                    <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.75rem', padding: '0.5rem' }}>
+                      +{data.watchlist.length - 20} more stocks
+                    </div>
+                  )}
                 </div>
               </div>
             )}
