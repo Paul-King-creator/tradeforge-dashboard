@@ -245,50 +245,40 @@ function App() {
                 <div className="positions-list">
                   {data.positions.map(pos => (
                     <div key={pos.id} className="position-card">
-                      <div className={`position-type ${pos.type === 'buy' ? 'long' : 'short'}`}>
-                        {pos.type === 'buy' ? 'L' : 'S'}
-                      </div>
-                      <div className="position-info">
-                        <h3>{pos.ticker}</h3>
-                        <span>
-                          {pos.shares} shares @ {pos.leverage}x | R:R {pos.riskRewardRatio}:1
-                        </span>
-                      </div>
-                      {/* Desktop Metrics */}
-                      <div className="position-price hide-mobile">
-                        <div className="label">Position</div>
-                        <div className="value">{formatCurrency(pos.positionValue)}</div>
-                      </div>
-                      <div className="position-price hide-mobile">
-                        <div className="label">Risk</div>
-                        <div className="value" style={{ color: '#ef4444' }}>-{formatCurrency(pos.riskAmount)}</div>
-                      </div>
-                      <div className="position-price hide-mobile">
-                        <div className="label">Target</div>
-                        <div className="value" style={{ color: '#10b981' }}>+{formatCurrency(pos.potentialProfit)}</div>
-                      </div>
-                      <div className="position-price">
-                        <div className="label">P&L</div>
-                        <div className={`value ${(pos.pnl || 0) >= 0 ? 'positive' : 'negative'}`}>
-                          {(pos.pnl || 0) > 0 ? '+' : ''}{(pos.pnl || 0).toFixed(1)}%
-                          <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
-                            {formatCurrency(pos.unrealizedPnl)}
+                      <div className="position-header">
+                        <div className={`position-type ${pos.type === 'buy' ? 'long' : 'short'}`}>
+                          {pos.type === 'buy' ? 'L' : 'S'}
+                        </div>
+                        <div className="position-main">
+                          <h3>{pos.ticker}</h3>
+                          <span className="meta">
+                            {pos.shares} shares @ {pos.leverage}x • R:R {pos.riskRewardRatio}:1
+                          </span>
+                        </div>
+                        <div className="position-pnl">
+                          <div className="label">P&L</div>
+                          <div className={`value ${(pos.pnl || 0) >= 0 ? 'positive' : 'negative'}`}>
+                            {(pos.pnl || 0) > 0 ? '+' : ''}{(pos.pnl || 0).toFixed(1)}%
                           </div>
+                          <div className="sub">{formatCurrency(pos.unrealizedPnl)}</div>
                         </div>
                       </div>
-                      {/* Mobile Metrics Row */}
-                      <div className="mobile-metrics">
-                        <div className="position-price">
-                          <div className="label">Size</div>
-                          <div className="value">{formatCurrency(pos.positionValue)}</div>
+                      <div className="position-metrics">
+                        <div className="position-metric">
+                          <span className="label">Position</span>
+                          <span className="value">{formatCurrency(pos.positionValue)}</span>
                         </div>
-                        <div className="position-price">
-                          <div className="label">Risk</div>
-                          <div className="value" style={{ color: '#ef4444' }}>-{formatCurrency(pos.riskAmount)}</div>
+                        <div className="position-metric">
+                          <span className="label">Risk</span>
+                          <span className="value" style={{ color: '#ef4444' }}>-{formatCurrency(pos.riskAmount)}</span>
                         </div>
-                        <div className="position-price">
-                          <div className="label">Target</div>
-                          <div className="value" style={{ color: '#10b981' }}>+{formatCurrency(pos.potentialProfit)}</div>
+                        <div className="position-metric">
+                          <span className="label">Target</span>
+                          <span className="value" style={{ color: '#10b981' }}>+{formatCurrency(pos.potentialProfit)}</span>
+                        </div>
+                        <div className="position-metric hide-mobile">
+                          <span className="label">Entry</span>
+                          <span className="value">${(pos.entry || 0).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>
@@ -332,19 +322,15 @@ function App() {
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {data.strategyStats.map(strat => (
-                    <div key={strat.name} style={{ 
-                      padding: '1rem', 
-                      background: 'rgba(255,255,255,0.03)', 
-                      borderRadius: '8px' 
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                        <span style={{ fontWeight: 600 }}>{strat.name}</span>
-                        <span style={{ color: (strat.winRate || 0) >= 50 ? '#10b981' : '#ef4444' }}>
+                    <div key={strat.name} className="strategy-item">
+                      <div className="strategy-header">
+                        <span className="name">{strat.name.replace('_', ' ')}</span>
+                        <span className="wr" style={{ color: (strat.winRate || 0) >= 50 ? '#10b981' : '#ef4444' }}>
                           {strat.winRate}% WR
                         </span>
                       </div>
-                      <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
-                        {strat.trades} trades • Ø {strat.avgReturn}%
+                      <div className="strategy-meta">
+                        {strat.trades} trades • Avg {strat.avgReturn}%
                       </div>
                     </div>
                   ))}
